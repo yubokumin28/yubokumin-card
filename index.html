@@ -98,8 +98,17 @@
       document.getElementById('wait').style.display = 'inline';
     });
     // カメラが使えない端末(PCなど)でも遊牧民くんとボタンは見える
-    window.addEventListener('camera-error', function(){ document.getElementById('fallback').style.display = 'block'; document.getElementById('wait').textContent = 'カメラが使えないので、遊牧民くんは静止画でご挨拶'; });
+    window.addEventListener('camera-error', function(e){ document.getElementById('fallback').style.display = 'block'; document.getElementById('wait').textContent = 'カメラが使えないので、遊牧民くんは静止画でご挨拶'; st('カメラNG: ' + ((e && e.detail && (e.detail.error || e.detail.message)) || 'ブラウザがカメラを渡してくれません。Chrome か Safari で開き直してください')); });
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { window.dispatchEvent(new Event('camera-error')); }
+
+    // どこで止まったか画面の隅に出す(旦那様がスクショで送れるように)
+    function st(msg){ var s = document.getElementById('st'); s.textContent = msg; }
+    st('読み込み中… ' + (navigator.userAgent.match(/Chrome|Safari|Line|Instagram|FBAN/g) || []).join('/'));
+    window.addEventListener('arjs-video-loaded', function(){ st('カメラOK。名刺の裏のQRに向けてください'); });
+    m.addEventListener('markerFound', function(){ st('マーカー検出OK'); });
+    window.addEventListener('error', function(e){ st('エラー: ' + (e.message || e.type)); });
+    document.querySelector('a-scene').addEventListener('loaded', function(){ if (document.getElementById('st').textContent.indexOf('読み込み中') === 0) st('3D準備OK。カメラの許可待ち…'); });
   </script>
+  <div id="st" style="position:fixed;left:8px;bottom:2px;z-index:11;font:11px monospace;color:#3b2a1a;background:rgba(255,255,255,.7);padding:2px 6px;border-radius:6px;max-width:90vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
 </body>
 </html>
