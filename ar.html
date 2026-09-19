@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>遊牧民くん AR名刺</title>
+  <!-- A-Frame + AR.js(マーカー型)+ 指で回す/つまんで大きくする -->
+  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+  <script src="https://raw.githack.com/fcor/arjs-gestures/master/dist/gestures.js"></script>
+  <style>
+    body{margin:0;overflow:hidden;font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic UI",sans-serif}
+    #hint{position:fixed;left:12px;right:12px;top:12px;z-index:10;background:rgba(59,42,26,.82);color:#fff;border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.5;text-align:center}
+    #hint b{color:#ffd9a3}
+    #back{position:fixed;left:12px;right:12px;bottom:14px;z-index:10;background:#3f8f8a;color:#fff;text-decoration:none;text-align:center;padding:14px;border-radius:14px;font-weight:900;font-size:16px;box-shadow:0 8px 18px rgba(0,0,0,.25)}
+    #found{display:none}
+  </style>
+</head>
+<body>
+  <div id="hint"><span id="wait">📷 カメラを許可して、<b>名刺のQRコード</b>にかざしてください</span><span id="found">🎉 遊牧民くん登場！ <b>指で回す・つまんで大きく</b>できます</span></div>
+  <a id="back" href="./">▶ 特典と出品一覧を見る</a>
+
+  <a-scene
+    embedded
+    arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; patternRatio: 0.8;"
+    vr-mode-ui="enabled: false;"
+    renderer="logarithmicDepthBuffer: true; precision: medium;"
+    gesture-detector
+    id="scene">
+
+    <a-assets>
+      <img id="seal" src="yubokumin.png" crossorigin="anonymous">
+      <img id="label" src="label.png" crossorigin="anonymous">
+    </a-assets>
+
+    <a-marker type="pattern" url="pattern-yubokumin.patt" patternRatio="0.8" emitevents="true" id="marker">
+      <!-- 遊牧民くん: 名刺の上に立つ絵(gltf が出来たらここを gltf-model に差し替える) -->
+      <a-entity id="seal-root" class="clickable" gesture-handler="minScale: 0.4; maxScale: 4" position="0 0 0" rotation="0 0 0">
+        <!-- 少し後ろに倒す(-25度): 真上からのぞき込んでも板が線にならない -->
+        <a-plane src="#seal" transparent="true" width="1.24" height="2" position="0 0.95 -0.2" rotation="-25 0 0" side="double"
+                 animation="property: position; from: 0 0.95 -0.2; to: 0 1.1 -0.2; dir: alternate; dur: 1600; loop: true; easing: easeInOutSine"></a-plane>
+        <a-plane src="#label" transparent="true" width="2.2" height="0.54" position="0 2.15 -0.75" rotation="-25 0 0" side="double"></a-plane>
+        <a-circle color="#3b2a1a" opacity="0.25" radius="0.55" rotation="-90 0 0" position="0 0.01 0"></a-circle>
+      </a-entity>
+    </a-marker>
+
+    <a-entity camera></a-entity>
+  </a-scene>
+
+  <script>
+    var m = document.getElementById('marker');
+    m.addEventListener('markerFound', function () {
+      document.getElementById('wait').style.display = 'none';
+      document.getElementById('found').style.display = 'inline';
+    });
+    m.addEventListener('markerLost', function () {
+      document.getElementById('found').style.display = 'none';
+      document.getElementById('wait').style.display = 'inline';
+    });
+  </script>
+</body>
+</html>
